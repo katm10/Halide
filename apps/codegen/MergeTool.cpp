@@ -326,71 +326,8 @@ shared_ptr<Node> start_tree_constructor(shared_ptr<Node> root, const T *expr, co
     } else {
         assert(false);
     }
-    // TODO**: do this for all reasonable starting types.
     assert(false);
-    // switch (expr->node_type) {
-    //     case IRNodeType::Sub:
-    //         return handle_bin_op_helper<Halide::Internal::Sub, Language::Sub>(root, expr, name, scope);
-    //     case IRNodeType::Add:
-    //         return handle_bin_op_helper<Halide::Internal::Add, Language::Add>(root, expr, name, scope);
-    //     case IRNodeType::Mod:
-    //         return handle_bin_op_helper<Halide::Internal::Mod, Language::Mod>(root, expr, name, scope);
-    //     case IRNodeType::Mul:
-    //         return handle_bin_op_helper<Halide::Internal::Mul, Language::Mul>(root, expr, name, scope);
-    //     case IRNodeType::Div:
-    //         return handle_bin_op_helper<Halide::Internal::Div, Language::Div>(root, expr, name, scope);
-    //     case IRNodeType::Min:
-    //         return handle_bin_op_helper<Halide::Internal::Min, Language::Min>(root, expr, name, scope);
-    //     case IRNodeType::Max:
-    //         return handle_bin_op_helper<Halide::Internal::Max, Language::Max>(root, expr, name, scope);
-    //     case IRNodeType::EQ:
-    //         return handle_bin_op_helper<Halide::Internal::EQ, Language::EQ>(root, expr, name, scope);
-    //     case IRNodeType::NE:
-    //         return handle_bin_op_helper<Halide::Internal::NE, Language::NE>(root, expr, name, scope);
-    //     case IRNodeType::LT:
-    //         return handle_bin_op_helper<Halide::Internal::LT, Language::LT>(root, expr, name, scope);
-    //     case IRNodeType::LE:
-    //         return handle_bin_op_helper<Halide::Internal::LE, Language::LE>(root, expr, name, scope);
-    //     case IRNodeType::GT:
-    //         return handle_bin_op_helper<Halide::Internal::GT, Language::GT>(root, expr, name, scope);
-    //     case IRNodeType::GE:
-    //         return handle_bin_op_helper<Halide::Internal::GE, Language::GE>(root, expr, name, scope);
-    //     case IRNodeType::And:
-    //         return handle_bin_op_helper<Halide::Internal::And, Language::And>(root, expr, name, scope);
-    //     case IRNodeType::Or:
-    //         return handle_bin_op_helper<Halide::Internal::Or, Language::Or>(root, expr, name, scope);
-    //     case IRNodeType::Not:
-    //         return handle_not_helper(root, expr, name, scope);
-    //     case IRNodeType::Select:
-    //         return handle_select_helper(root, expr, name, scope);
-    //     case IRNodeType::Call: {
-    //         if(expr->name == "ramp") {
-    //             return handle_ramp_helper(root, expr, name, scope);
-    //         } else if(expr->name == "broadcast") {
-    //             return handle_broadcast_helper(root, expr, name, scope);
-    //         } else {
-    //             assert(false);
-    //         }
-    //     }
-    //     default:
-    //         assert(false);
-    // }
     return nullptr;
-}
-
-void add_rule(shared_ptr<Node> root, const RewriteRule &rule, const std::string &name) {
-    VarScope scope;
-    shared_ptr<Node> deepest = tree_constructor(root, rule.before, name, scope);
-    if (rule.pred.defined()) {
-        // TODO: probably want to assert that child node doesn't exist...?
-        const std::string condition = "evaluate_predicate(fold(" + Printer::build_expr(rule.pred, scope) + ", simplifier))";
-        shared_ptr<Language::Condition> cond_node = make_shared<Language::Condition>(condition);
-        deepest = deepest->get_child(cond_node);
-    }
-
-    const std::string retval = Printer::build_expr(rule.after, scope);
-    shared_ptr<Language::Return> ret_node = make_shared<Language::Return>(retval);
-    deepest = deepest->get_child(ret_node);
 }
 
 template<typename T>
@@ -411,19 +348,6 @@ void add_rule_typed(shared_ptr<Node> root, const RewriteRule &rule, const std::s
     deepest = deepest->get_child(ret_node);
 }
 
-shared_ptr<Node> create_graph(const vector<RewriteRule> &rules, const std::string &expr_name) {
-    assert(rules.size() > 0);
-
-    shared_ptr<Node> root = make_shared<Language::Sequence>();
-
-    // have nothing
-
-    for (const auto &rule : rules) {
-        add_rule(root, rule, expr_name);
-    }
-    return root;
-}
-
 template<typename T>
 shared_ptr<Node> create_graph_typed(const vector<RewriteRule> &rules, const std::string &expr_name) {
     assert(rules.size() > 0);
@@ -436,14 +360,6 @@ shared_ptr<Node> create_graph_typed(const vector<RewriteRule> &rules, const std:
         add_rule_typed<T>(root, rule, expr_name);
     }
     return root;
-}
-
-void print_function(const vector<RewriteRule> &rules, const std::string &func_name) {
-    shared_ptr<Node> root = create_graph(rules, "expr");
-
-    std::cout << "Expr " << func_name << "(const Expr &expr, Simplify *simplifier) {\n";
-    root->print(std::cout, "");
-    std::cout << "  return expr;\n}\n";
 }
 
 template<typename T>
@@ -878,7 +794,6 @@ int main(void) {
     //     std::cerr << ")\n";
     // }
 
-    print_function(rules, "simplify_sub");
     print_function_typed<Halide::Internal::Sub>(rules, "simplify_sub", "Sub");
 
     // this is for checking correctness, uncomment out when checking.
