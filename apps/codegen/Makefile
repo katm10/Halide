@@ -1,8 +1,12 @@
 include ../support/Makefile.inc
 
-OBJECTS = $(BIN)/Printer.o $(BIN)/Language.o
+OBJECTS = $(BIN)/Printer.o $(BIN)/Language.o  $(BIN)/Rule.o 
 
-all: $(BIN)/MergeTool
+all: $(BIN)/MergeTool $(BIN)/Parser
+
+mergetool: $(BIN)/MergeTool
+
+parser: $(BIN)/Parser
 
 CXXFLAGS += -O3 -g
 
@@ -15,6 +19,10 @@ $(BIN)/%.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BIN)/MergeTool: MergeTool.cpp $(OBJECTS) $(LIB_HALIDE)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $< $(OBJECTS) -o $@ $(LDFLAGS) -lHalide
+
+$(BIN)/Parser: Parser.cpp $(OBJECTS) $(LIB_HALIDE)
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $< $(OBJECTS) -o $@ $(LDFLAGS) -lHalide
 

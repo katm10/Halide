@@ -1,0 +1,1 @@
+rewrite( (x + y) - y, x)
