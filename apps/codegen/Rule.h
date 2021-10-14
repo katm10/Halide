@@ -15,19 +15,22 @@ enum NumericType {
 };
 
 class Rule {
+public:
     /*
         TODO: this should really be
             const Expr before;
             const Expr after;
             const Cond pred;
+        TODO: this should not all be public
     */
     const std::string rule;
     std::vector<NumericType> allowed_types;
     std::vector<NumericType> disallowed_types;
 
-public:
     ~Rule() = default;
-    Rule(const std::string _rule) : rule(_rule) {}
+    Rule(const std::string _rule)
+        : rule(_rule) {
+    }
 
     void set_allowed_types(std::vector<NumericType> _allowed_types);
     std::vector<NumericType> get_allowed_types();
