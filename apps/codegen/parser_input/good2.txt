@@ -1,6 +1,6 @@
 rewrite(x - 0, x),
 rewrite(c0 - c1, fold(c0 - c1)),
-rewrite(x - x, 0),
+rewrite(x - x, 0)|- !uint,
 rewrite(ramp(x, y, c0) - ramp(z, w, c0), ramp(x - z, y - w, c0)),
 rewrite(ramp(x, y, c0) - broadcast(z, c0), ramp(x - z, y, c0)),
 rewrite(broadcast(x, c0) - ramp(z, w, c0), ramp(x - z, -w, c0)),

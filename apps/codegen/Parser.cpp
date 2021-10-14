@@ -12,12 +12,13 @@ using namespace Halide::Internal;
 
 /**
  * TODO:
+ * - fix parser
  * - overflows
  * - IRMatcher::Overflow, parse similar function calls from namespaces
  * - comments
+ * - check whitespaces work properly
  * - remove Halide dependency
  *      - create Expr class
- *      - change how Exprs are returned since no computations actually need to be done here
  */
 // TODO: how portable is this?
 size_t get_filesize(const std::string &filename) {
@@ -322,6 +323,11 @@ public:
                 return !e;
             }
 
+            if (consume("-")) {
+                Expr e = parse_halide_expr(precedence);
+                return -e;
+            }
+
             // Parse entire rewrite rules as exprs
             if (consume("rewrite(")) {
                 Expr lhs = parse_halide_expr(0);
@@ -368,10 +374,11 @@ public:
                 expect(")");
                 return likely(a);
             }
-            if (consume("overflows(")){
+
+            // TODO: overflows, should be reparsable as bool 
+            if (consume("overflows(")) {
                 Expr a = parse_halide_expr(0);
                 expect(")");
-                // TODO: return overflows(a) instead
                 return a;
             }
 
@@ -676,10 +683,17 @@ std::vector<Rule *> parse_rules_from_file(const std::string &filename) {
     std::ifstream input_file(filename);
     assert(input_file.is_open());
 
-    // TODO: support comments
+    bool is_comment = false;
+
     size_t i = 0;
     while (input_file.get(byte)) {
-        if (!(byte == ' ' || byte == '\t')) {
+        if (byte == '/' && input_file.peek() == '/'){
+            is_comment = true;
+        }
+        else if (byte == '\n' && is_comment){
+            is_comment = false;
+        }
+        else if (!(byte == ' ' || byte == '\t' || byte == '\n') && !is_comment) {
             cfile[i] = byte;
             i++;
         }

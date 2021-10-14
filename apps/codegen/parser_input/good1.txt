@@ -1,11 +1,13 @@
 rewrite(x*y - z*y, (x - z)*y),
-rewrite(x*y - y*z, (x - z)*y),
+rewrite(x*y - y*z, (x - z)*y), // this is a comment
 rewrite(y*x - z*y, y*(x - z)),
 rewrite(y*x - y*z, y*(x - z)),
 rewrite((u + x*y) - z*y, u + (x - z)*y),
 rewrite((u + x*y) - y*z, u + (x - z)*y),
 rewrite((u + y*x) - z*y, u + y*(x - z)),
 rewrite((u + y*x) - y*z, u + y*(x - z)),
+// here is another comment
+
 rewrite((u - x*y) - z*y, u - (x + z)*y),
 rewrite((u - x*y) - y*z, u - (x + z)*y),
 rewrite((u - y*x) - z*y, u - y*(x + z)),
