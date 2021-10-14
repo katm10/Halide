@@ -18,6 +18,7 @@ using namespace Halide::Internal;
  * - remove Halide dependency
  *      - create Expr class
  *      - change how Exprs are returned since no computations actually need to be done here
+ */
 // TODO: how portable is this?
 size_t get_filesize(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
