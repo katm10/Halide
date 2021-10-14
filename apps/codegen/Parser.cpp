@@ -14,8 +14,8 @@ using namespace Halide::Internal;
  * TODO:
  * - fix parser
  * - overflows
- * - IRMatcher::Overflow, parse similar function calls from namespaces
- * - comments
+ * - IRMatcher::Overflow <= match for this case specifically, will deal with Call::<blah> later
+ * - handle is_const, can_prove
  * - check whitespaces work properly
  * - remove Halide dependency
  *      - create Expr class
@@ -37,7 +37,8 @@ const std::map<std::string, NumericType> typeStrings{
     {"float", NumericType::FLOAT},
     {"no_overflow", NumericType::NO_OVERFLOW},
     {"no_overflow_int", NumericType::NO_OVERFLOW_INT},
-    {"bool", NumericType::BOOL}};
+    {"bool", NumericType::BOOL},
+    {"no_overflow_scalar_int", NumericType::NO_OVERFLOW_SCALAR_INT}};
 
 bool is_whitespace(char c) {
     return c == ' ' || c == '\n' || c == '\t';
@@ -375,7 +376,7 @@ public:
                 return likely(a);
             }
 
-            // TODO: overflows, should be reparsable as bool 
+            // TODO: overflows, should be reparsable as bool
             if (consume("overflows(")) {
                 Expr a = parse_halide_expr(0);
                 expect(")");
@@ -574,28 +575,12 @@ public:
         }
         expect(")");
         return new Rule(lhs, rhs, predicate);
-
-        /*expect("rewrite(");
-        consume_whitespace();
-        Expr before = parse_halide_expr(0);
-        consume_whitespace();
-        expect(",");
-        consume_whitespace();
-        Expr after = parse_halide_expr(0);
-        consume_whitespace();
-        if (consume(",")){
-            consume_whitespace();
-            Expr pred = parse_halide_expr(0);
-            rule = new Rule(before, after, pred);
-        } else {
-            rule = new Rule(before, after);
-        }
-        expect(")"); */
     }
 
     NumericType parse_type() {
         for (const auto typePair : typeStrings) {
             if (consume(typePair.first.c_str())) {
+                std::cout << typePair.second << std::endl;
                 return typePair.second;
             }
         }
@@ -687,13 +672,11 @@ std::vector<Rule *> parse_rules_from_file(const std::string &filename) {
 
     size_t i = 0;
     while (input_file.get(byte)) {
-        if (byte == '/' && input_file.peek() == '/'){
+        if (byte == '/' && input_file.peek() == '/') {
             is_comment = true;
-        }
-        else if (byte == '\n' && is_comment){
+        } else if (byte == '\n' && is_comment) {
             is_comment = false;
-        }
-        else if (!(byte == ' ' || byte == '\t' || byte == '\n') && !is_comment) {
+        } else if (!(byte == ' ' || byte == '\t' || byte == '\n') && !is_comment) {
             cfile[i] = byte;
             i++;
         }

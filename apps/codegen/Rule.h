@@ -11,7 +11,8 @@ enum NumericType {
     FLOAT,
     NO_OVERFLOW,
     NO_OVERFLOW_INT,
-    BOOL
+    BOOL, 
+    NO_OVERFLOW_SCALAR_INT
     // TODO almost certainly missing a lot here
 };
 
