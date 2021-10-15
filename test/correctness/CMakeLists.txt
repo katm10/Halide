@@ -153,6 +153,7 @@ tests(GROUPS correctness
       gpu_transpose.cpp
       gpu_vectorize.cpp
       gpu_vectorized_shared_memory.cpp
+      growing_stack.cpp
       half_native_interleave.cpp
       halide_buffer.cpp
       handle.cpp
@@ -169,6 +170,7 @@ tests(GROUPS correctness
       implicit_args.cpp
       implicit_args_tests.cpp
       in_place.cpp
+      indexing_access_undef.cpp
       infer_arguments.cpp
       inline_reduction.cpp
       inlined_generator.cpp
@@ -327,6 +329,7 @@ tests(GROUPS correctness
       uninitialized_read.cpp
       unique_func_image.cpp
       unroll_dynamic_loop.cpp
+      unroll_huge_mux.cpp
       unrolled_reduction.cpp
       unsafe_dedup_lets.cpp
       unsafe_promises.cpp

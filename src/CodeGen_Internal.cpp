@@ -7,6 +7,7 @@
 #include "LLVM_Headers.h"
 #include "Simplify.h"
 #include "Simplify_Internal.h"
+#include "runtime/constants.h"
 
 namespace Halide {
 namespace Internal {
@@ -249,10 +250,8 @@ bool function_takes_user_context(const std::string &name) {
         "_halide_buffer_retire_crop_after_extern_stage",
         "_halide_buffer_retire_crops_after_extern_stage",
     };
-    const int num_funcs = sizeof(user_context_runtime_funcs) /
-                          sizeof(user_context_runtime_funcs[0]);
-    for (int i = 0; i < num_funcs; ++i) {
-        if (name == user_context_runtime_funcs[i]) {
+    for (const char *user_context_runtime_func : user_context_runtime_funcs) {
+        if (name == user_context_runtime_func) {
             return true;
         }
     }
@@ -262,7 +261,7 @@ bool function_takes_user_context(const std::string &name) {
 
 bool can_allocation_fit_on_stack(int64_t size) {
     user_assert(size > 0) << "Allocation size should be a positive number\n";
-    return (size <= 1024 * 16);
+    return (size <= (int64_t)Runtime::Internal::Constants::maximum_stack_allocation_bytes);
 }
 
 Expr lower_int_uint_div(const Expr &a, const Expr &b) {
@@ -676,7 +675,7 @@ void get_target_options(const llvm::Module &module, llvm::TargetOptions &options
     options.HonorSignDependentRoundingFPMathOption = !per_instruction_fast_math_flags;
     options.NoZerosInBSS = false;
     options.GuaranteedTailCallOpt = false;
-#if LLVM_VERSION >= 13
+#if LLVM_VERSION >= 130
     // nothing
 #else
     options.StackAlignmentOverride = 0;
